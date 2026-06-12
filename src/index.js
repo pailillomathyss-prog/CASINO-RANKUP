@@ -16,15 +16,22 @@ const client = new Client({
 });
 
 client.commands = new Collection();
+client.prefixCommands = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(f => f.endsWith('.js'));
-
 const commandsData = [];
 for (const file of commandFiles) {
   const command = require(path.join(commandsPath, file));
   client.commands.set(command.data.name, command);
   commandsData.push(command.data.toJSON());
+}
+
+const prefixPath = path.join(__dirname, 'prefix');
+const prefixFiles = fs.readdirSync(prefixPath).filter(f => f.endsWith('.js'));
+for (const file of prefixFiles) {
+  const cmd = require(path.join(prefixPath, file));
+  client.prefixCommands.set(cmd.name, cmd);
 }
 
 const eventsPath = path.join(__dirname, 'events');
@@ -66,6 +73,7 @@ client.once('ready', async () => {
 
   startMissionCron(client);
   console.log('✅ Système de missions activé');
+  console.log(`✅ Commandes prefix chargées : ${[...client.prefixCommands.keys()].map(k => '!' + k).join(', ')}`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
