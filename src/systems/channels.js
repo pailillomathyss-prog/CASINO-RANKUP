@@ -107,8 +107,7 @@ async function postNiveauxInfo(channel) {
       '**Commandes :**\n' +
       '`/rank` ou `+rank` — Voir votre niveau et XP\n' +
       '`/classement` ou `+classement` — Top 10 du serveur\n' +
-      '`/missions` ou `+missions` — Vos missions du jour\n' +
-      '`/voir-roles` — Voir les rôles à gagner\n\n' +
+      '`/missions` ou `+missions` — Vos missions du jour\n\n' +
       '⚠️ `+rank` est réservé aux salons **🧩・commandes**'
     )
     .setFooter({ text: 'Bonne chance dans votre progression !' })
