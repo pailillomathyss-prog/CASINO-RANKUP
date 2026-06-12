@@ -5,7 +5,8 @@ module.exports = {
   name: 'classement',
   async execute(message, args, client) {
     if (!message.channel.name.includes('commandes') && !message.channel.name.startsWith('🧩')) {
-      return message.reply(`❌ Cette commande n'est utilisable que dans les salons **🧩・commandes** !`).then(m => setTimeout(() => m.delete().catch(()=>{}), 5000));
+      return message.reply(`❌ Cette commande n'est utilisable que dans les salons **🧩・commandes** !`)
+        .then(m => setTimeout(() => m.delete().catch(() => {}), 5000));
     }
 
     const top = db.getLeaderboard(message.guildId, 10);
@@ -21,7 +22,7 @@ module.exports = {
       lines.push(`${medal} **${name}** — Niv. ${u.level} | ${u.xp.toLocaleString()} XP`);
     }
 
-    const myUser = db.getAllUsers(message.guildId).sort((a,b)=>b.xp-a.xp);
+    const myUser = db.getAllUsers(message.guildId).sort((a, b) => b.xp - a.xp);
     const myRank = myUser.findIndex(u => u.user_id === message.author.id) + 1;
     const myData = db.getUser(message.author.id, message.guildId);
 
