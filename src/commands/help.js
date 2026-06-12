@@ -20,15 +20,6 @@ module.exports = {
           ].join('\n'),
         },
         {
-          name: '📢 Afficher les infos dans le salon',
-          value: [
-            '`/voir-classement` — Classement dans ce salon',
-            '`/voir-missions` — Missions du jour dans ce salon',
-            '`/voir-roles` — Rôles à gagner dans ce salon',
-            '`/voir-niveaux` — Comment gagner de l\'XP dans ce salon',
-          ].join('\n'),
-        },
-        {
           name: '🔧 Commandes admin — Joueurs',
           value: [
             '`/addxp @joueur <xp>` — Ajouter de l\'XP',
