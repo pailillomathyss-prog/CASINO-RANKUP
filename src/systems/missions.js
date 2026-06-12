@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const { EmbedBuilder } = require('discord.js');
 const db = require('./database');
 const { addXp } = require('./xp');
+const { logMissionComplete, logMissionsReset } = require('./logger');
 
 const MISSION_TEMPLATES = [
   { type: 'messages', description: 'Envoyer 10 messages',   goal: 10,  xp_reward: 100 },
@@ -65,6 +66,8 @@ async function checkMissionProgress(userId, guildId, type, amount, client) {
 
     if (completed && !(um && um.completed)) {
       await addXp(userId, guildId, mission.xp_reward, client);
+      await logMissionComplete(userId, mission.description, mission.xp_reward);
+
       const guild = client.guilds.cache.get(guildId);
       if (guild) {
         const { getChannelId } = require('./channels');
@@ -91,6 +94,7 @@ function startMissionCron(client) {
 
   cron.schedule('0 0 * * *', async () => {
     generateMissions();
+    await logMissionsReset();
     console.log('🔄 Missions réinitialisées');
 
     const guild = client.guilds.cache.get(process.env.GUILD_ID);
