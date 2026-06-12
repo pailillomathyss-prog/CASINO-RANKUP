@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const db = require('./systems/database');
 const { startMissionCron } = require('./systems/missions');
+const { initLogger } = require('./systems/logger');
 
 const client = new Client({
   intents: [
@@ -62,6 +63,8 @@ client.once('ready', async () => {
 
   const guild = client.guilds.cache.get(process.env.GUILD_ID);
   if (guild) {
+    initLogger(client, guild);
+
     const { setupRoles } = require('./systems/roles');
     await setupRoles(guild);
     console.log('✅ Rôles créés/vérifiés');
@@ -73,7 +76,7 @@ client.once('ready', async () => {
 
   startMissionCron(client);
   console.log('✅ Système de missions activé');
-  console.log(`✅ Commandes prefix chargées : ${[...client.prefixCommands.keys()].map(k => '!' + k).join(', ')}`);
+  console.log(`✅ Commandes prefix : ${[...client.prefixCommands.keys()].map(k => '!' + k).join(', ')}`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
