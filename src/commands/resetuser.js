@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const db = require('../systems/database');
 const { ROLE_MILESTONES } = require('../systems/roles');
+const { logAdminAction } = require('../systems/logger');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -21,6 +22,7 @@ module.exports = {
       }
     }
 
+    await logAdminAction(interaction.user.id, 'Reset Joueur', target.id, 'XP et niveau remis à zéro, rôles retirés');
     await interaction.reply({ content: `✅ <@${target.id}> a été remis à zéro.`, ephemeral: true });
   },
 };
