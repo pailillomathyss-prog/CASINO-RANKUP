@@ -11,16 +11,16 @@ module.exports = {
       .setColor(0x5865f2)
       .addFields(
         {
-          name: '👤 Commandes joueur (/ et !)',
+          name: '👤 Commandes joueur (/ et +)',
           value: [
-            '`/rank` ou `!rank` [@joueur] — Voir votre niveau et XP',
-            '`/classement` ou `!classement` — Top 10 du serveur',
-            '`/missions` ou `!missions` — Vos missions du jour',
-            '`/help` ou `!help` — Cette aide',
+            '`/rank` ou `+rank` [@joueur] — Voir votre niveau et XP',
+            '`/classement` ou `+classement` — Top 10 du serveur',
+            '`/missions` ou `+missions` — Vos missions du jour',
+            '`/help` ou `+help` — Cette aide',
           ].join('\n'),
         },
         {
-          name: '⚠️ Restriction commandes `!`',
+          name: '⚠️ Restriction commandes `+`',
           value: 'Uniquement dans les salons **🧩・commandes**',
         },
         {
