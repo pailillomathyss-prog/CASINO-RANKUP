@@ -1,4 +1,5 @@
 const db = require('./database');
+const { logLevelUp } = require('./logger');
 
 const XP_PER_MESSAGE = 15;
 const XP_PER_VOICE_MINUTE = 5;
@@ -46,15 +47,19 @@ async function handleLevelUp(guild, userId, oldLevel, newLevel, client) {
   const member = await guild.members.fetch(userId).catch(() => null);
   if (!member) return;
 
+  let obtainedRoleName = null;
   for (let lvl = oldLevel + 1; lvl <= newLevel; lvl++) {
     const roleInfo = getRoleForLevel(lvl);
     if (roleInfo) {
       const role = guild.roles.cache.find(r => r.name === roleInfo.name);
       if (role && !member.roles.cache.has(role.id)) {
         await member.roles.add(role).catch(console.error);
+        obtainedRoleName = roleInfo.name;
       }
     }
   }
+
+  await logLevelUp(userId, oldLevel, newLevel, obtainedRoleName);
 
   const { getChannelId } = require('./channels');
   const channelId = getChannelId('classement');
