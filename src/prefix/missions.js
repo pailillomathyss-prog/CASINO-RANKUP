@@ -5,7 +5,8 @@ module.exports = {
   name: 'missions',
   async execute(message, args, client) {
     if (!message.channel.name.includes('commandes') && !message.channel.name.startsWith('🧩')) {
-      return message.reply(`❌ Cette commande n'est utilisable que dans les salons **🧩・commandes** !`).then(m => setTimeout(() => m.delete().catch(()=>{}), 5000));
+      return message.reply(`❌ Cette commande n'est utilisable que dans les salons **🧩・commandes** !`)
+        .then(m => setTimeout(() => m.delete().catch(() => {}), 5000));
     }
 
     const missions = db.getUserMissions(message.author.id);
