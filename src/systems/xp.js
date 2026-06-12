@@ -3,7 +3,7 @@ const { logLevelUp } = require('./logger');
 
 const XP_PER_MESSAGE = 15;
 const XP_PER_VOICE_MINUTE = 5;
-const MESSAGE_COOLDOWN_MS = 60000;
+const MESSAGE_COOLDOWN_MS = 15000;
 
 function xpForLevel(level) {
   return Math.floor(100 * Math.pow(level, 1.5));
