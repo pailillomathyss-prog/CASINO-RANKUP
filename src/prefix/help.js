@@ -17,15 +17,6 @@ module.exports = {
           ].join('\n'),
         },
         {
-          name: '📢 Afficher les infos dans le salon',
-          value: [
-            '`/voir-classement` — Classement ici',
-            '`/voir-missions` — Missions du jour ici',
-            '`/voir-roles` — Rôles à gagner ici',
-            '`/voir-niveaux` — Comment gagner de l\'XP ici',
-          ].join('\n'),
-        },
-        {
           name: '🔧 Commandes admin (/ uniquement)',
           value: [
             '`/addxp` `/setlevel` `/resetuser` — Gestion joueurs',
