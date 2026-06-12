@@ -2,7 +2,7 @@ const { addXp, MESSAGE_COOLDOWN_MS, XP_PER_MESSAGE } = require('../systems/xp');
 const db = require('../systems/database');
 const { checkMissionProgress } = require('../systems/missions');
 
-const PREFIX = '!';
+const PREFIX = '+';
 
 module.exports = {
   name: 'messageCreate',
