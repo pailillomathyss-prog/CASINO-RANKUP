@@ -46,37 +46,53 @@ for (const file of eventFiles) {
   }
 }
 
-client.once('ready', async () => {
-  console.log(`✅ Bot connecté en tant que ${client.user.tag}`);
-  db.init();
-
+async function registerCommands() {
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+  const CLIENT_ID = process.env.CLIENT_ID;
+  const GUILD_ID = process.env.GUILD_ID;
+
   try {
+    if (GUILD_ID) {
+      await rest.put(
+        Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
+        { body: commandsData }
+      );
+      console.log(`✅ Commandes slash enregistrées pour le serveur ${GUILD_ID} (instantané)`);
+    }
+
     await rest.put(
-      Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+      Routes.applicationCommands(CLIENT_ID),
       { body: commandsData }
     );
-    console.log('✅ Commandes slash enregistrées');
+    console.log(`✅ Commandes slash enregistrées globalement (${commandsData.length} commandes)`);
+    commandsData.forEach(c => console.log(`   /${c.name}`));
   } catch (err) {
-    console.error('❌ Erreur enregistrement commandes:', err);
+    console.error('❌ Erreur enregistrement commandes:', err.message);
   }
+}
+
+client.once('ready', async () => {
+  console.log(`✅ Bot connecté : ${client.user.tag} (ID: ${client.user.id})`);
+  console.log(`🔗 Lien d'invitation : https://discord.com/oauth2/authorize?client_id=${client.user.id}&scope=bot+applications.commands&permissions=8`);
+  db.init();
+
+  await registerCommands();
 
   const guild = client.guilds.cache.get(process.env.GUILD_ID);
   if (guild) {
     initLogger(client, guild);
-
     const { setupRoles } = require('./systems/roles');
     await setupRoles(guild);
     console.log('✅ Rôles créés/vérifiés');
-
     const { setupInfoChannels } = require('./systems/channels');
     await setupInfoChannels(client, guild);
-    console.log('✅ Salons mis à jour');
+    console.log('✅ Salons détectés');
+  } else if (process.env.GUILD_ID) {
+    console.warn(`⚠️ Serveur ${process.env.GUILD_ID} introuvable — le bot n'est pas dans ce serveur`);
   }
 
   startMissionCron(client);
-  console.log('✅ Système de missions activé');
-  console.log(`✅ Commandes prefix : ${[...client.prefixCommands.keys()].map(k => '!' + k).join(', ')}`);
+  console.log(`✅ Prefix commands : ${[...client.prefixCommands.keys()].map(k => '+' + k).join(', ')}`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
