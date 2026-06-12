@@ -3,13 +3,12 @@ const db = require('../systems/database');
 const { totalXpForLevel } = require('../systems/xp');
 const { getRoleForLevel } = require('../systems/roles');
 
-const ALLOWED_CHANNEL_NAME = '🧩・commandes';
-
 module.exports = {
   name: 'rank',
   async execute(message, args, client) {
     if (!message.channel.name.includes('commandes') && !message.channel.name.startsWith('🧩')) {
-      return message.reply(`❌ Cette commande n'est utilisable que dans les salons **${ALLOWED_CHANNEL_NAME}** !`).then(m => setTimeout(() => m.delete().catch(()=>{}), 5000));
+      return message.reply(`❌ Cette commande n'est utilisable que dans les salons **🧩・commandes** !`)
+        .then(m => setTimeout(() => m.delete().catch(() => {}), 5000));
     }
 
     const target = message.mentions.users.first() || message.author;
