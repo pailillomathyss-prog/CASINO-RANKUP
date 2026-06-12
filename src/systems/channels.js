@@ -96,11 +96,11 @@ async function postNiveauxInfo(channel) {
     .setColor(0x5865f2)
     .setDescription(
       '**Gagnez de l\'XP en étant actif sur le serveur !**\n\n' +
-      `💬 **Messages** : \`+${XP_PER_MESSAGE} XP\` par message (1 fois par minute)\n` +
+      `💬 **Messages** : \`+${XP_PER_MESSAGE} XP\` par message (1 fois toutes les 15s)\n` +
       `🎤 **Vocal** : \`+${XP_PER_VOICE_MINUTE} XP\` par minute passée en vocal\n` +
       `📜 **Missions** : XP bonus en complétant les missions quotidiennes\n\n` +
       '**Règles :**\n' +
-      '• Un seul gain d\'XP par message toutes les 60 secondes\n' +
+      '• Un seul gain d\'XP par message toutes les 15 secondes\n' +
       '• Le vocal vous rapporte de l\'XP en continu\n' +
       '• Les missions se renouvellent toutes les 24h\n' +
       '• Maximum : **Niveau 500**\n\n' +
