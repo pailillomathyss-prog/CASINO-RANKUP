@@ -3,11 +3,6 @@ const { EmbedBuilder } = require('discord.js');
 module.exports = {
   name: 'help',
   async execute(message, args, client) {
-    if (!message.channel.name.includes('commandes') && !message.channel.name.startsWith('🧩')) {
-      return message.reply(`❌ Cette commande n'est utilisable que dans les salons **🧩・commandes** !`)
-        .then(m => setTimeout(() => m.delete().catch(() => {}), 5000));
-    }
-
     const embed = new EmbedBuilder()
       .setTitle('📖 Aide — Commandes disponibles')
       .setColor(0x5865f2)
@@ -15,28 +10,31 @@ module.exports = {
         {
           name: '👤 Commandes joueur (+ et /)',
           value: [
-            '`+rank` ou `/rank` [@joueur] — Voir votre niveau et XP',
+            '`+rank` ou `/rank` [@joueur] — Voir votre niveau et XP *(🧩・commandes uniquement)*',
             '`+classement` ou `/classement` — Top 10 du serveur',
             '`+missions` ou `/missions` — Vos missions du jour',
             '`+help` ou `/help` — Cette aide',
           ].join('\n'),
         },
         {
-          name: '⚠️ Restriction',
-          value: 'Les commandes `+` ne fonctionnent que dans les salons **🧩・commandes**',
+          name: '📢 Afficher les infos dans le salon',
+          value: [
+            '`/voir-classement` — Classement ici',
+            '`/voir-missions` — Missions du jour ici',
+            '`/voir-roles` — Rôles à gagner ici',
+            '`/voir-niveaux` — Comment gagner de l\'XP ici',
+          ].join('\n'),
         },
         {
           name: '🔧 Commandes admin (/ uniquement)',
           value: [
-            '`/addxp @joueur <xp>` — Ajouter de l\'XP',
-            '`/setlevel @joueur <niveau>` — Définir un niveau',
-            '`/resetuser @joueur` — Remettre à zéro',
-            '`/setup-all` — Reconfigurer tous les salons',
+            '`/addxp` `/setlevel` `/resetuser` — Gestion joueurs',
+            '`/setup-all` — Reconfigurer tous les salons dédiés',
+            '`/setup-niveaux` `/setup-roles` `/setup-classement` `/setup-missions`',
           ].join('\n'),
         },
       )
       .setFooter({ text: 'Gagnez de l\'XP en chattant et en vocal !' });
-
     await message.reply({ embeds: [embed] });
   },
 };
