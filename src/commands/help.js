@@ -13,15 +13,20 @@ module.exports = {
         {
           name: '👤 Commandes joueur (/ et +)',
           value: [
-            '`/rank` ou `+rank` [@joueur] — Voir votre niveau et XP',
+            '`/rank` ou `+rank` [@joueur] — Voir votre niveau et XP *(🧩・commandes uniquement pour `+rank`)*',
             '`/classement` ou `+classement` — Top 10 du serveur',
             '`/missions` ou `+missions` — Vos missions du jour',
             '`/help` ou `+help` — Cette aide',
           ].join('\n'),
         },
         {
-          name: '⚠️ Restriction commandes `+`',
-          value: 'Uniquement dans les salons **🧩・commandes**',
+          name: '📢 Afficher les infos dans le salon',
+          value: [
+            '`/voir-classement` — Classement dans ce salon',
+            '`/voir-missions` — Missions du jour dans ce salon',
+            '`/voir-roles` — Rôles à gagner dans ce salon',
+            '`/voir-niveaux` — Comment gagner de l\'XP dans ce salon',
+          ].join('\n'),
         },
         {
           name: '🔧 Commandes admin — Joueurs',
@@ -32,22 +37,13 @@ module.exports = {
           ].join('\n'),
         },
         {
-          name: '⚙️ Commandes admin — Configuration salons',
+          name: '⚙️ Commandes admin — Configuration salons dédiés',
           value: [
             '`/setup-all` — Reconfigurer **tous** les salons et rôles',
-            '`/setup-niveaux [#salon]` — Rafraîchir 📈・niveau-xp',
-            '`/setup-roles [#salon]` — Rafraîchir 🎖️・récompenses',
-            '`/setup-classement [#salon]` — Rafraîchir 🏅・classement',
-            '`/setup-missions [#salon]` — Rafraîchir 📜・missions',
-          ].join('\n'),
-        },
-        {
-          name: '📢 Salons automatiques',
-          value: [
-            '`📈・niveau-xp` — Explication du système XP',
-            '`🎖️・récompenses` — Liste des rôles par niveau',
-            '`🏅・classement` — Classement mis à jour en temps réel',
-            '`📜・missions` — Missions quotidiennes',
+            '`/setup-niveaux` — Poster dans 📈・niveau-xp',
+            '`/setup-roles` — Poster dans 🎖️・récompenses',
+            '`/setup-classement` — Poster dans 🏅・classement',
+            '`/setup-missions` — Poster dans 📜・missions',
           ].join('\n'),
         },
       )
