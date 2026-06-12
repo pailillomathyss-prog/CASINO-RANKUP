@@ -1,19 +1,33 @@
 const { EmbedBuilder } = require('discord.js');
 const db = require('./database');
 const { ROLE_MILESTONES } = require('./roles');
-const { xpForLevel, XP_PER_MESSAGE, XP_PER_VOICE_MINUTE } = require('./xp');
+const { XP_PER_MESSAGE, XP_PER_VOICE_MINUTE } = require('./xp');
 
 const CHANNEL_NAMES = {
-  niveaux:    '📈・niveau-xp',
-  recompenses:'🎖️・récompenses',
-  classement: '🏅・classement',
-  missions:   '📜・missions',
+  niveaux:     '📈・niveau-xp',
+  recompenses: '🎖️・récompenses',
+  classement:  '🏅・classement',
+  missions:    '📜・missions',
 };
 
 const channelIds = {};
+const pinnedMessageIds = {};
 
 function getChannelId(key) {
   return channelIds[key] || null;
+}
+
+async function findOrSendEmbed(channel, embed) {
+  try {
+    const messages = await channel.messages.fetch({ limit: 20 });
+    const botMsg = messages.find(m => m.author.id === channel.client.user.id && m.embeds.length > 0);
+    if (botMsg) {
+      await botMsg.edit({ embeds: [embed] });
+      return botMsg.id;
+    }
+  } catch {}
+  const sent = await channel.send({ embeds: [embed] }).catch(console.error);
+  return sent?.id;
 }
 
 async function setupInfoChannels(client, guild) {
@@ -27,10 +41,6 @@ async function setupInfoChannels(client, guild) {
     }
     if (channel) {
       channelIds[key] = channel.id;
-      if (key === 'niveaux') await postNiveauxInfo(channel);
-      if (key === 'recompenses') await postRecompenses(channel, guild);
-      if (key === 'classement') await postClassement(channel, guild, client);
-      if (key === 'missions') await postMissions(channel, client);
     }
   }
 
@@ -38,12 +48,49 @@ async function setupInfoChannels(client, guild) {
     const g = client.guilds.cache.get(process.env.GUILD_ID);
     if (!g) return;
     const ch = g.channels.cache.get(channelIds['classement']);
-    if (ch) await postClassement(ch, g, client);
+    if (ch) await refreshClassement(ch, g);
   }, 5 * 60 * 1000);
 }
 
+async function refreshClassement(channel, guild) {
+  const top = db.getLeaderboard(guild.id, 10);
+  const lines = [];
+  for (let i = 0; i < top.length; i++) {
+    const u = top[i];
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
+    let tag = u.username || `<@${u.user_id}>`;
+    try { const member = await guild.members.fetch(u.user_id); tag = member.displayName; } catch {}
+    lines.push(`${medal} ${tag} — Niv. **${u.level}** | ${u.xp.toLocaleString()} XP`);
+  }
+  const embed = new EmbedBuilder()
+    .setTitle('🏅 Classement du serveur')
+    .setColor(0xffd700)
+    .setDescription(lines.length > 0 ? lines.join('\n') : 'Aucun joueur pour l\'instant.')
+    .setFooter({ text: `Mis à jour toutes les 5 minutes • ${new Date().toLocaleTimeString('fr-FR')}` })
+    .setTimestamp();
+  await findOrSendEmbed(channel, embed);
+}
+
+async function postClassement(channel, guild, client) {
+  const top = db.getLeaderboard(guild.id, 10);
+  const lines = [];
+  for (let i = 0; i < top.length; i++) {
+    const u = top[i];
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
+    let tag = u.username || `<@${u.user_id}>`;
+    try { const member = await guild.members.fetch(u.user_id); tag = member.displayName; } catch {}
+    lines.push(`${medal} ${tag} — Niv. **${u.level}** | ${u.xp.toLocaleString()} XP`);
+  }
+  const embed = new EmbedBuilder()
+    .setTitle('🏅 Classement du serveur')
+    .setColor(0xffd700)
+    .setDescription(lines.length > 0 ? lines.join('\n') : 'Aucun joueur pour l\'instant.')
+    .setFooter({ text: `Mis à jour toutes les 5 minutes • ${new Date().toLocaleTimeString('fr-FR')}` })
+    .setTimestamp();
+  await findOrSendEmbed(channel, embed);
+}
+
 async function postNiveauxInfo(channel) {
-  await channel.bulkDelete(10).catch(() => {});
   const embed = new EmbedBuilder()
     .setTitle('📈 Comment gagner de l\'XP ?')
     .setColor(0x5865f2)
@@ -58,26 +105,24 @@ async function postNiveauxInfo(channel) {
       '• Les missions se renouvellent toutes les 24h\n' +
       '• Maximum : **Niveau 500**\n\n' +
       '**Commandes :**\n' +
-      '`/rank` — Voir votre niveau et XP\n' +
-      '`/classement` — Top 10 du serveur\n' +
-      '`/missions` — Vos missions du jour'
+      '`/rank` ou `+rank` — Voir votre niveau et XP\n' +
+      '`/classement` ou `+classement` — Top 10 du serveur\n' +
+      '`/missions` ou `+missions` — Vos missions du jour\n' +
+      '`/voir-roles` — Voir les rôles à gagner\n\n' +
+      '⚠️ `+rank` est réservé aux salons **🧩・commandes**'
     )
     .setFooter({ text: 'Bonne chance dans votre progression !' })
     .setTimestamp();
-  await channel.send({ embeds: [embed] }).catch(console.error);
+  await findOrSendEmbed(channel, embed);
 }
 
 async function postRecompenses(channel, guild) {
-  await channel.bulkDelete(10).catch(() => {});
   const chunks = [];
-  for (let i = 0; i < ROLE_MILESTONES.length; i += 5) {
-    chunks.push(ROLE_MILESTONES.slice(i, i + 5));
-  }
+  for (let i = 0; i < ROLE_MILESTONES.length; i += 5) chunks.push(ROLE_MILESTONES.slice(i, i + 5));
   const embed = new EmbedBuilder()
     .setTitle('🎖️ Récompenses par niveau')
     .setColor(0xffd700)
     .setDescription('Voici tous les rôles que vous pouvez obtenir en montant de niveau !\n\u200b');
-
   for (const chunk of chunks) {
     embed.addFields({
       name: '\u200b',
@@ -89,37 +134,16 @@ async function postRecompenses(channel, guild) {
     });
   }
   embed.setFooter({ text: 'Continuez à être actif pour débloquer ces rôles !' });
-  await channel.send({ embeds: [embed] }).catch(console.error);
-}
-
-async function postClassement(channel, guild, client) {
-  await channel.bulkDelete(10).catch(() => {});
-  const top = db.getLeaderboard(guild.id, 10);
-  const lines = [];
-  for (let i = 0; i < top.length; i++) {
-    const u = top[i];
-    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
-    let tag = u.username || `<@${u.user_id}>`;
-    try {
-      const member = await guild.members.fetch(u.user_id);
-      tag = member.displayName;
-    } catch {}
-    lines.push(`${medal} ${tag} — Niv. **${u.level}** | ${u.xp.toLocaleString()} XP`);
-  }
-  const embed = new EmbedBuilder()
-    .setTitle('🏅 Classement du serveur')
-    .setColor(0xffd700)
-    .setDescription(lines.length > 0 ? lines.join('\n') : 'Aucun joueur pour l\'instant.')
-    .setFooter({ text: `Mis à jour toutes les 5 minutes • ${new Date().toLocaleTimeString('fr-FR')}` })
-    .setTimestamp();
-  await channel.send({ embeds: [embed] }).catch(console.error);
+  await findOrSendEmbed(channel, embed);
 }
 
 async function postMissions(channel, client) {
   const { getMissionEmbed } = require('./missions');
-  await channel.bulkDelete(10).catch(() => {});
   const embed = getMissionEmbed();
-  await channel.send({ embeds: [embed] }).catch(console.error);
+  await findOrSendEmbed(channel, embed);
 }
 
-module.exports = { setupInfoChannels, postClassement, postMissions, getChannelId, CHANNEL_NAMES, channelIds };
+module.exports = {
+  setupInfoChannels, postClassement, postNiveauxInfo, postRecompenses,
+  postMissions, getChannelId, CHANNEL_NAMES, channelIds,
+};
