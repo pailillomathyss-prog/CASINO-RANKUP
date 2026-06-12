@@ -2,6 +2,7 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const db = require('../systems/database');
 const { totalXpForLevel } = require('../systems/xp');
 const { getRoleForLevel, ROLE_MILESTONES } = require('../systems/roles');
+const { logAdminAction } = require('../systems/logger');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -30,6 +31,7 @@ module.exports = {
       }
     }
 
+    await logAdminAction(interaction.user.id, 'Set Level', target.id, `Niveau défini à ${level} (${xp.toLocaleString()} XP)`);
     await interaction.reply({ content: `✅ <@${target.id}> est maintenant **niveau ${level}** (${xp.toLocaleString()} XP).`, ephemeral: true });
   },
 };
